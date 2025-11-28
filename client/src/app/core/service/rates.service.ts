@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AssessmentRateResponseDTO, AssessmentRateSeriesDTO } from '../model/assessment-rate.dto';
+import {HttpParams} from '@angular/common/http';
 
 type BucketSize = 'minute' | 'hour' | 'day';
 
@@ -21,15 +22,15 @@ export class RatesService extends BaseService {
     bucket: BucketSize = 'hour',
     tasks?: string[]
   ): Observable<AssessmentRateResponseDTO> {
-    const params: Record<string, string> = {
-      from,
-      to,
-      bucket,
-    };
+    const params: HttpParams = new HttpParams();
+    params.set('from', from);
+    params.set('to', to);
+    params.set('bucket', bucket);
+
     if (tasks && tasks.length) {
-      params['tasks'] = tasks.join(',');
+      params.set('task', tasks.join(','));
     }
-    return this.api.getWithParams(this.baseUrl, '', params);
+    return this.api.get(this.baseUrl, '', params);
   }
 
   public getTaskRate(
@@ -38,7 +39,10 @@ export class RatesService extends BaseService {
     to: string,
     bucket: BucketSize = 'hour'
   ): Observable<AssessmentRateSeriesDTO> {
-    const params: Record<string, string> = { from, to, bucket };
-    return this.api.getWithParams(this.baseUrl + '/tasks/', encodeURIComponent(taskId), params);
+    const params: HttpParams = new HttpParams();
+    params.set('from', from);
+    params.set('to', to);
+    params.set('bucket', bucket);
+    return this.api.get(this.baseUrl + '/tasks/', encodeURIComponent(taskId), params);
   }
 }

@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AssessmentEventDTO } from '../model/assessment-event.dto';
+import {HttpParams} from '@angular/common/http';
 
 export interface AssessmentsListResponseDTO {
   items: AssessmentEventDTO[];
@@ -30,13 +31,14 @@ export class AssessmentsService extends BaseService {
       pageSize?: number;
     } = {}
   ): Observable<AssessmentsListResponseDTO> {
-    const params: Record<string, string> = {};
-    if (options.from) params['from'] = options.from;
-    if (options.to) params['to'] = options.to;
-    if (options.taskId) params['taskId'] = options.taskId;
-    if (options.assessorId) params['assessorId'] = options.assessorId;
-    if (options.page) params['page'] = String(options.page);
-    if (options.pageSize) params['pageSize'] = String(options.pageSize);
-    return this.api.getWithParams(this.baseUrl, '', params);
+    const params: HttpParams = new HttpParams();
+    if (options.from) params.set('from', options.from);
+    if (options.to) params.set('to', options.to);
+    if (options.taskId) params.set('taskId', options.taskId);
+    if (options.assessorId) params.set('assessorId', options.assessorId);
+    if (options.page) params.set('page', options.page);
+    if (options.pageSize) params.set('pageSize', options.pageSize);
+
+    return this.api.get(this.baseUrl, '', params);
   }
 }
