@@ -1,0 +1,9 @@
+@for (item of items(); track item.id) {
+  <div class="row" role="listitem">
+    <div class="status" [class]="item.status || 'ok'" aria-hidden="true"></div>
+    <div>
+      <div class="title">{{ item.title }}</div>
+      @if(item.subtitle){<div class="subtitle">{{ item.subtitle }}</div>}
+    </div>
+  </div>
+}

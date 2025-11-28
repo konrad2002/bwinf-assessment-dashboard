@@ -1,0 +1,32 @@
+<h1>System Overview {{test}}</h1>
+<!--section class="header" aria-label="Dashboard header">
+  <h1>System Overview</h1>
+  <nav>
+    <a routerLink="/dashboard">Dashboard</a>
+  </nav>
+  <div class="totals" role="status" aria-live="polite">
+    <span>Services: {{ content.totals().services }}</span>
+    <span>Nodes: {{ content.totals().nodes }}</span>
+    <span>Avg Latency: {{ content.totals().avgLatency }} ms</span>
+  </div>
+</section>
+
+<section class="grid" aria-label="Dashboard content">
+  <div class="panel metrics" aria-label="Key metrics" role="region">
+    @for (m of content.metrics(); track m.id) {
+      <app-metric-tile [label]="m.label" [value]="m.value" [unit]="m.unit" [trend]="m.trend" />
+    }
+  </div>
+
+  <div class="panel chart" aria-label="Traffic chart" role="region">
+    <app-line-chart [points]="content.chartData()" />
+  </div>
+
+  <div class="panel table" aria-label="Services table" role="region">
+    <app-data-table [columns]="content.tableColumns()" [rows]="content.tableRows()" />
+  </div>
+
+  <div class="panel list" aria-label="Nodes list" role="region">
+    <app-item-list [items]="content.listItems()" />
+  </div>
+</section-->

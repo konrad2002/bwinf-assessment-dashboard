@@ -1,0 +1,22 @@
+<table role="table">
+  <thead>
+    <tr>
+      @for (col of columns(); track col.key) {
+        <th scope="col">
+          <button class="sort" (click)="toggleSort(col.key)" [attr.aria-label]="'Sort by ' + col.label">
+            {{ col.label }}
+          </button>
+        </th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (row of sortedRows(); track $index) {
+      <tr>
+        @for (col of columns(); track col.key) {
+          <td>{{ row[col.key] }}</td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

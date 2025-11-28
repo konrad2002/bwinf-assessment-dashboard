@@ -11,10 +11,10 @@ export class TestService extends BaseService {
   constructor(
     private api: ApiService
   ) {
-    super("TestService", "http://localhost:8080/");
+    super("TestService", "http://localhost:8081/stats/");
   }
 
-  public getTestData(): Observable<any> {
-    return this.api.get(this.baseUrl, "test");
+  public getTestData(): Observable<string> {
+    return this.api.get(this.baseUrl, "dummy");
   }
 }
