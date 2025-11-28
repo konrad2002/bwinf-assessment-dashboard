@@ -1,4 +1,4 @@
-name: [Client] Build and Deploy Angular to GitHub Pages
+name: Client Build and Deploy Angular to GitHub Pages
 
 on:
   push:
