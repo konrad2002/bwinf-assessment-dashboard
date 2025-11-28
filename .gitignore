@@ -141,3 +141,6 @@ vite.config.ts.timestamp-*
 /.idea/bwinf-assessment-dashboard.iml
 /.idea/modules.xml
 /server/target/
+
+.idea
+.vscode
