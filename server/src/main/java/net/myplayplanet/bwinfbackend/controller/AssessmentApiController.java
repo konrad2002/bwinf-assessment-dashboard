@@ -50,7 +50,12 @@ public class AssessmentApiController {
                 .firstMissing(0)
                 .secondMissing(0)
                 .totalMissing(0)
-                .percentages(TaskProgressDTO.Percentages.builder().first(0).second(0).total(0).build())
+                .percentages(TaskProgressDTO
+                        .Percentages.builder()
+                        .first(0)
+                        .second(0)
+                        .total(0)
+                        .build())
                 .updatedAt(Instant.now().toString())
                 .build();
     }
