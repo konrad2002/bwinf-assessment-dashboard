@@ -1,44 +1,41 @@
-import { Injectable } from '@angular/core';
-import { BaseService } from './base.service';
-import { Observable } from 'rxjs';
-import { LiveEventEnvelopeDTO, AssessmentEventDTO } from '../model/assessment-event.dto';
+import { Injectable, NgZone } from '@angular/core';
+import { Observable, Subscriber } from 'rxjs';
+import {EventSseDataDto} from '../model/event-sse-data.dto';
 
-@Injectable({ providedIn: 'root' })
-export class EventsService extends BaseService {
-  constructor() {
-    super('EventsService', '/api/events');
+@Injectable({
+  providedIn: 'root'
+})
+export class EventSourceService {
+  private eventSource?: EventSource;
+
+  constructor(private zone: NgZone) {}
+
+  getEventSource(url: string): EventSource {
+    return new EventSource(url);
   }
 
-  // Streams assessment completion events via SSE.
-  // Consumers should unsubscribe to close the connection.
-  public streamAssessments(): Observable<AssessmentEventDTO> {
-    return new Observable<AssessmentEventDTO>((subscriber) => {
-      const url = this.baseUrl; // SSE endpoint
-      const es = new EventSource(url);
+  connectToServerSentEvents(url: string): Observable<{data: string}> {
+    this.eventSource = this.getEventSource(url);
 
-      const onMessage = (evt: MessageEvent) => {
-        try {
-          const data = JSON.parse(evt.data) as LiveEventEnvelopeDTO<AssessmentEventDTO>;
-          if (data.type === 'assessment.completed' && data.payload) {
-            subscriber.next(data.payload);
-          }
-        } catch (e) {
-          // Ignore malformed messages, but do not error the stream
+    return new Observable((subscriber: Subscriber<{data: string}>) => {
+      if (this.eventSource) {
+        this.eventSource.onerror = error => {
+          this.zone.run(() => subscriber.error(error));
+        };
+
+        this.eventSource.onmessage = msg => {
+          this.zone.run(() => subscriber.next(msg));
         }
-      };
-
-      const onError = () => {
-        // Surface error to consumer and close
-        subscriber.error(new Error('SSE connection error'));
-        es.close();
-      };
-
-      es.onmessage = onMessage;
-      es.onerror = onError;
-
-      return () => {
-        es.close();
-      };
+      }
     });
+  }
+
+  close(): void {
+    if (!this.eventSource) {
+      return;
+    }
+
+    this.eventSource.close();
+    this.eventSource = undefined;
   }
 }

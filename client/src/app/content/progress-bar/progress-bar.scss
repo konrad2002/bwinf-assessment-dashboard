@@ -1,0 +1,29 @@
+:host {
+	--progress-height: 24px;
+	--progress-radius: 12px;
+	--progress-bg: #e5e7eb; /* gray-200 */
+}
+
+.progress {
+	position: relative;
+	width: 100%;
+	height: var(--progress-height);
+	background-color: var(--progress-bg);
+	border-radius: var(--progress-radius);
+	overflow: hidden;
+}
+
+.progress__bar {
+	height: 100%;
+	border-radius: var(--progress-radius);
+	transition: width 160ms ease-out;
+}
+
+.progress__sr {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 12px;
+	color: #111827; /* gray-900 for contrast */
+}

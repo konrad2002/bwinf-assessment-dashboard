@@ -1,86 +1,89 @@
-import {ChangeDetectionStrategy, Component, inject, OnInit, OnDestroy, signal} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  input,
+  OnDestroy,
+  OnInit,
+  signal
+} from '@angular/core';
 import {AssessmentsService} from '../../core/service/assessments.service';
-import {OverallProgressDTO, TaskProgressDTO} from '../../core/model/progress.dto';
-import {timer, forkJoin, Subscription} from 'rxjs';
-import {switchMap, shareReplay} from 'rxjs/operators';
-import {AsyncPipe, DecimalPipe} from '@angular/common';
-import {NgApexchartsModule} from 'ng-apexcharts';
-import {TaskType} from '../../core/model/task-type.enum';
-import getTaskName = TaskProgressDTO.getTaskName;
+
+import {ProgressDataDto} from '../../core/model/progress-data.dto';
+import {TaskProgressDto} from '../../core/model/task-progress.dto';
+import {ProgressView} from '../progress-view/progress-view';
+import {SubscriptionLike} from 'rxjs';
+import {EventSourceService} from '../../core/service/events.service';
+import {ProgressBar} from '../progress-bar/progress-bar';
+import {BiberStage} from '../biber-stage/biber-stage';
+import {CombinedProgressDataDto} from '../../core/model/combined-progress-data.dto';
+import {CorrectorDto} from '../../core/model/corrector.dto';
+import {EventSseDataDto} from '../../core/model/event-sse-data.dto';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-dashboard-old',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard.component.html',
   imports: [
-    AsyncPipe,
-    DecimalPipe,
-    NgApexchartsModule
+    ProgressView,
+    ProgressBar,
+    BiberStage
   ],
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  private readonly assessmentService = inject(AssessmentsService);
+  private assessmentService = inject(AssessmentsService);
+  private cdr = inject(ChangeDetectorRef);
+  private eventService = inject(EventSourceService)
 
-  private updateRate = 1000 * 10; // Poll every 1 second (1000ms)
+  dummy = signal<number>(5);
 
-  // Signals for reactive state
-  overallProgress = signal<OverallProgressDTO | undefined>(undefined);
-  taskProgress = signal<TaskProgressDTO[]>([]);
+  bibers: { id: number, corrector: CorrectorDto }[] = [];
 
-  // Chart data signals (avoid re-creating arrays to minimize reflow)
-  completionSeriesSignal = signal<number[]>([0, 0]);
-  completionLabels = ['Done', 'Missing'];
+  private eventSourceSubscription?: SubscriptionLike;
 
-  // Stable chart options to avoid re-creation and layout jumps
-  completionChartOptions = {
-    chart: { type: 'donut', animations: { enabled: false }, height: 320 },
-    legend: { position: 'bottom' },
-    colors: ['#22c55e', '#ef4444'],
-    title: { text: 'Overall Completion' },
-    tooltip: { theme: 'dark' as const },
-    responsive: [{ breakpoint: 1024, options: { chart: { height: 280 }, legend: { position: 'bottom' } } }]
-  } as const;
-
-  submissionsSeriesSignal = signal<{ name: string; data: number[] }[]>([{ name: 'Submissions', data: [] }]);
-  submissionsCategoriesSignal = signal<string[]>([]);
-
-  submissionsChartOptions = {
-    chart: { type: 'bar', animations: { enabled: false }, height: 360, toolbar: { show: false } },
-    plotOptions: { bar: { horizontal: false, columnWidth: '55%' } },
-    dataLabels: { enabled: false },
-    colors: ['#3b82f6'],
-    grid: { borderColor: 'var(--border)' },
-    title: { text: 'Submissions by Task' },
-    tooltip: { theme: 'dark' as const }
-  } as const;
-
-  private pollSub?: Subscription;
+  overall?: ProgressDataDto
+  tasks: TaskProgressDto[] = [];
 
   ngOnInit(): void {
-    console.log('DashboardComponent ngOnInit - Setting up consolidated polling');
-
-    const poll$ = timer(0, this.updateRate).pipe(
-      switchMap(() => forkJoin({
-        overall: this.assessmentService.getOverallProgress(),
-        tasks: this.assessmentService.getTaskProgressForAll()
-      })),
-      shareReplay(1)
-    );
-
-    this.pollSub = poll$.subscribe(({ overall, tasks }) => {
-      this.overallProgress.set(overall);
-      this.taskProgress.set(tasks);
-      // Update chart data signals atomically
-      this.completionSeriesSignal.set([overall.totalAssessmentsDone, overall.totalMissing]);
-      this.submissionsSeriesSignal.set([{ name: 'Submissions', data: tasks.map(t => t.totalSubmissions) }]);
-      this.submissionsCategoriesSignal.set(tasks.map(t => getTaskName(t)));
+    this.assessmentService.getTaskProgressForAll().subscribe({
+      next: data => {
+        this.overall = data.globalProgressDataPoint.progressDataPointDto;
+        this.tasks = data.taskProgressDataPointDtos;
+        this.cdr.detectChanges();
+      }
     });
+
+    const url = 'http://localhost:8081/api/event/sse';
+
+    this.eventSourceSubscription = this.eventService.connectToServerSentEvents(url)
+      .subscribe({
+          next: data => {
+            console.log(data);
+
+            const progressData: EventSseDataDto = JSON.parse(data.data);
+
+            this.overall = progressData.combinedProgressDataPointDto.globalProgressDataPoint.progressDataPointDto;
+            this.tasks = progressData.combinedProgressDataPointDto.taskProgressDataPointDtos;
+
+            this.dummy.set(this.dummy() + 1)
+            this.bibers.push({
+              id: this.dummy(),
+              corrector: progressData.correctorDto
+            });
+            this.cdr.detectChanges();
+          },
+          error: error => {
+            //handle error
+          }
+        }
+      );
   }
 
-  ngOnDestroy(): void {
-    this.pollSub?.unsubscribe();
+  ngOnDestroy() {
+    if (this.eventSourceSubscription)
+      this.eventSourceSubscription.unsubscribe();
+    this.eventService.close();
   }
-
-  protected readonly getTaskName = getTaskName;
 }

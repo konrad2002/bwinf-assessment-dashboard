@@ -1,0 +1,92 @@
+<section class="dashboard" aria-labelledby="overview-title">
+  <header class="header panel">
+    <h1 id="overview-title">System Overview</h1>
+    <nav aria-label="Quick stats" class="totals">
+      @if (progress()) {
+        <span><b>Total submissions:</b> {{progress()?.globalProgressDataPoint?.progressDataPointDto?.totalSubmissions}}</span>
+        <span><b>Total Required Evaluations:</b> {{progress()?.globalProgressDataPoint?.progressDataPointDto?.totalRequiredEvaluations}}</span>
+        <span><b>Assessed:</b> {{progress()?.globalProgressDataPoint?.progressDataPointDto?.onlyFirstDone}}</span>
+      }
+    </nav>
+  </header>
+
+  <div class="grid">
+    <section class="panel metrics" aria-label="Key metrics">
+      @if (progress()) {
+        <div class="metric" role="group" aria-label="First assessments">
+          <div class="metric__label">First assessments</div>
+          <div class="metric__value">{{progress()?.globalProgressDataPoint?.progressDataPointDto?.onlyFirstDone}}</div>
+
+          @let percentageFirst = getFirstPercentage();
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="percentageFirst"></div>
+          </div>
+          <div class="sr-only">{{percentageFirst | number:'1.0-2'}}% complete</div>
+        </div>
+
+        <div class="metric" role="group" aria-label="Second assessments">
+          <div class="metric__label">Second assessments</div>
+          <div class="metric__value">{{progress()?.globalProgressDataPoint?.progressDataPointDto?.done}}</div>
+
+          @let percentageSecond = getSecondPercentage();
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="percentageSecond"></div>
+          </div>
+          <div class="sr-only">{{percentageSecond | number:'1.0-2'}}% complete</div>
+        </div>
+
+        <div class="metric" role="group" aria-label="Total assessed">
+          <div class="metric__label">Total assessed</div>
+          <div class="metric__value">{{(progress()?.globalProgressDataPoint?.progressDataPointDto?.onlyFirstDone ?? 0) + (progress()?.globalProgressDataPoint?.progressDataPointDto?.done ?? 0)}}</div>
+
+          @let percentageOverall = getOverallPercentage();
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="percentageOverall"></div>
+          </div>
+          <div class="sr-only">{{percentageOverall | number:'1.0-2'}}% complete</div>
+        </div>
+      }
+    </section>
+
+    <section class="panel chart" aria-label="Overall completion">
+      <apx-chart
+        [series]="completionSeriesSignal()"
+        [chart]="completionChartOptions.chart"
+        [labels]="completionLabels"
+        [title]="completionChartOptions.title"
+        [legend]="completionChartOptions.legend">
+      </apx-chart>
+    </section>
+
+    <section class="panel table" aria-label="Task submissions">
+      <apx-chart
+        [series]="submissionsSeriesSignal()"
+        [chart]="submissionsChartOptions.chart"
+        [xaxis]="{ categories: submissionsCategoriesSignal() }"
+        [title]="submissionsChartOptions.title"
+        [plotOptions]="submissionsChartOptions.plotOptions"
+        [dataLabels]="submissionsChartOptions.dataLabels"
+        [grid]="submissionsChartOptions.grid">
+      </apx-chart>
+    </section>
+
+    <section class="panel list" aria-label="Tasks list">
+      @if (progress()?.taskProgressDataPointDtos?.length) {
+        <ul>
+          @for (task of progress()?.taskProgressDataPointDtos; track getTaskName(task)) {
+            <li>
+              <div class="task-row">
+                <div class="task-name">{{getTaskName(task)}}</div>
+                <div class="task-metrics">
+                  <span title="Total submissions"><b>Σ</b> {{task.progressDataPointDto?.totalSubmissions}}</span>
+                  <span title="Total done"><b>✓</b> {{task.progressDataPointDto?.onlyFirstDone}}</span>
+                  <span title="Missing"><b>⧗</b> {{task.progressDataPointDto?.firstMissing}}</span>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</section>

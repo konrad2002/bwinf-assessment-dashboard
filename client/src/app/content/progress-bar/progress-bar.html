@@ -1,0 +1,14 @@
+<div
+	class="progress"
+	role="progressbar"
+	aria-valuemin="0"
+	aria-valuemax="100"
+	[attr.aria-valuenow]="percent()"
+>
+	<div
+		class="progress__bar"
+		[style.width.%]="percent()"
+		[style.background-color]="color()"
+	></div>
+	<div class="progress__sr" aria-hidden="true">{{ percent() | number:'1.0-2'}}%</div>
+</div>

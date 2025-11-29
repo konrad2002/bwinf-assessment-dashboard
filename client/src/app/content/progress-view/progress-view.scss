@@ -1,0 +1,6 @@
+.task-progress {
+  display: grid;
+  grid-template-columns: 50px 1fr 1fr;
+  grid-gap: 32px;
+  margin-top: 50px;
+}
