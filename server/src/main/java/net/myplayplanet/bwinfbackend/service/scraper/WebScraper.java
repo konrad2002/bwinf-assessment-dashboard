@@ -33,7 +33,6 @@ public class WebScraper {
     private final CorrectorService correctorService;
 
 
-    @Scheduled(fixedRate = 60000) // 1x per minute
     public void runScraper() {
 
         long correctionContext = 1L;

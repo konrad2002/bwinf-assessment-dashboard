@@ -7,21 +7,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/** Aggregate progress across all tasks. */
+/**
+ * Aggregate progress across all tasks.
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OverallProgressDTO {
-    private int totalTasks;
-    private int totalSubmissions;
-    private int firstAssessmentsDone;
-    private int secondAssessmentsDone;
-    private int totalAssessmentsDone;
-    private int firstMissing;
-    private int secondMissing;
-    private int totalMissing;
+    private GlobalProgressDataPointDto globalProgressDataPointDto;
     private TaskProgressDTO.Percentages percentages;
-    private List<TaskProgressDTO> byTask;
+    private List<TaskProgressDataPointDto> byTask;
     private String updatedAt; // ISO 8601 UTC
 }

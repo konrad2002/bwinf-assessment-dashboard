@@ -24,19 +24,20 @@ public class AssessmentApiController {
     private final AssessmentService assessmentService;
 
     @GetMapping("/progress/{ctxId}/overall")
-    public OverallProgressDTO getOverallProgress(@PathVariable Long ctxId) {
-        return this.assessmentService.calculateOverallProgress(ctxId);
+    public GlobalProgressDataPointDto getOverallProgress(@PathVariable Long ctxId) {
+        this.assessmentService.saveNewProgressDataPoint(ctxId);
+
+        return this.assessmentService.calculateGlobalTaskProgressDataPointDto(ctxId);
     }
 
     @GetMapping("/progress/{ctxId}/type/{type}/tasks/{taskId}")
-    public TaskProgressDTO getTaskProgress(@PathVariable Long ctxId, @PathVariable String type, @PathVariable Integer taskId) {
-        return this.assessmentService.calculateTaskProgressDto(ctxId, TaskType.valueOf(type), taskId);
+    public TaskProgressDataPointDto getTaskProgress(@PathVariable Long ctxId, @PathVariable String type, @PathVariable Integer taskId) {
+        return this.assessmentService.calculateTaskProgressDataPointDto(ctxId, TaskType.valueOf(type), taskId);
     }
 
-    // TODO: return calculated progress dto for all tasks in the given context
     @GetMapping("/progress/{ctxId}/all")
-    public List<TaskProgressDTO> getTaskProgressForAll(@PathVariable Long ctxId) {
-        return List.of(this.assessmentService.calculateTaskProgressDto(ctxId, TaskType.JWINF, 1));
+    public CombinedProgressDataPointDto getTaskProgressForAll(@PathVariable Long ctxId) {
+        return this.assessmentService.calculateCombinedProgressDataPointDto(ctxId);
     }
 
     @GetMapping("/rates")
