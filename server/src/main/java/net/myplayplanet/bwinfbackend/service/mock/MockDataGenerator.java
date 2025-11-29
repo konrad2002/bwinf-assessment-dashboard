@@ -24,6 +24,8 @@ public class MockDataGenerator {
     private final static Collection<String> correctors = List.of("paulf", "konradw");
     private final static Collection<Integer> taskNumbers = List.of(1, 2, 3, 4, 5);
     private final static Collection<Integer> deductedPoints = List.of(1, 2, 3, 4, 5);
+    private final static Collection<String> submissionIds = List.of("0001", "0002", "0003");
+
 
     @Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
     public void generateEvaluationData() {
@@ -33,6 +35,7 @@ public class MockDataGenerator {
                 .pointsDeducted(getRandomElement(deductedPoints))
                 .corrector(new CorrectorDto(null, getRandomElement(correctors)))
                 .taskType(TaskType.JWINF)
+                .submissionId(getRandomElement(submissionIds))
                 .correctionContextId(1L)
                 .build();
 

@@ -19,4 +19,6 @@ public class EvaluationDto implements Serializable {
     TaskType taskType;
     Integer taskNumber;
     Integer pointsDeducted;
+    String submissionId;
+
 }
