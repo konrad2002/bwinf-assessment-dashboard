@@ -1,22 +1,97 @@
-<h1>System Overview</h1>
+<section class="dashboard" aria-labelledby="overview-title">
+  <header class="header panel">
+    <h1 id="overview-title">System Overview</h1>
+    <nav aria-label="Quick stats" class="totals">
+      @if (overallProgress()) {
+        <span><b>Total submissions:</b> {{overallProgress()!.totalSubmissions}}</span>
+        <span><b>Tasks:</b> {{overallProgress()!.totalTasks}}</span>
+        <span><b>Assessed:</b> {{overallProgress()!.totalAssessmentsDone}}</span>
+      }
+    </nav>
+  </header>
 
-@if (overallProgress) {
-  <ul>
-    <li>
-      <b>Submissions: </b>
-      {{overallProgress.totalSubmissions}}
-    </li>
-  </ul>
-}
+  <div class="grid">
+    <section class="panel metrics" aria-label="Key metrics">
+      @if (overallProgress()) {
+        <div class="metric" role="group" aria-label="First assessments">
+          <div class="metric__label">First assessments</div>
+          <div class="metric__value">{{overallProgress()!.firstAssessmentsDone}}</div>
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.first"></div>
+          </div>
+          <div class="sr-only">{{overallProgress()!.percentages.first}}% complete</div>
+        </div>
 
+        <div class="metric" role="group" aria-label="Second assessments">
+          <div class="metric__label">Second assessments</div>
+          <div class="metric__value">{{overallProgress()!.secondAssessmentsDone}}</div>
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.second"></div>
+          </div>
+          <div class="sr-only">{{overallProgress()!.percentages.second}}% complete</div>
+        </div>
 
-@if (taskProgress) {
-  <ul>
-    @for (task of taskProgress; track task.taskId) {
-      <li>
-        <b>{{task.taskName}}: </b>
-        {{task.totalSubmissions}}
-      </li>
-    }
-  </ul>
-}
+        <div class="metric" role="group" aria-label="Total assessed">
+          <div class="metric__label">Total assessed</div>
+          <div class="metric__value">{{overallProgress()!.totalAssessmentsDone}}</div>
+          <div class="metric__bar" aria-hidden="true">
+            <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.total"></div>
+          </div>
+          <div class="sr-only">{{overallProgress()!.percentages.total}}% complete</div>
+        </div>
+      }
+    </section>
+
+    <section class="panel chart" aria-label="Overall completion">
+      @if (overallProgress()) {
+        <apx-chart
+          [series]="completionSeries()"
+          [chart]="{ type: 'donut', animations: { enabled: true } }"
+          [labels]="completionLabels"
+          [title]="{ text: 'Overall Completion' }"
+          [colors]="['#22c55e', '#ef4444']"
+          [legend]="{ position: 'bottom' }"
+          [responsive]="[{ breakpoint: 1024, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }]">
+        </apx-chart>
+      } @else {
+        <p>Loading overall completion…</p>
+      }
+    </section>
+
+    <section class="panel table" aria-label="Task submissions">
+      @if (taskProgress().length) {
+        <apx-chart
+          [series]="submissionsByTaskSeries()"
+          [chart]="{ type: 'bar', animations: { enabled: true } }"
+          [xaxis]="{ categories: submissionsByTaskCategories() }"
+          [title]="{ text: 'Submissions by Task' }"
+          [plotOptions]="{ bar: { horizontal: false, columnWidth: '55%' } }"
+          [dataLabels]="{ enabled: false }"
+          [colors]="['#3b82f6']"
+          [grid]="{ borderColor: 'var(--border)' }">
+        </apx-chart>
+      } @else {
+        <p>Loading task submissions…</p>
+      }
+    </section>
+
+    <section class="panel list" aria-label="Tasks list">
+      @if (taskProgress().length) {
+        <ul>
+          @for (task of taskProgress(); track task.taskId) {
+            <li>
+              <div class="task-row">
+                <div class="task-name">{{task.taskName ?? task.taskId}}</div>
+                <div class="task-metrics">
+                  <span title="Total submissions"><b>Σ</b> {{task.totalSubmissions}}</span>
+                  <span title="Total done"><b>✓</b> {{task.totalAssessmentsDone}}</span>
+                  <span title="Missing"><b>⧗</b> {{task.totalMissing}}</span>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+</section>

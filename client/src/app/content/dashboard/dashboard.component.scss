@@ -13,3 +13,16 @@
   .metrics{grid-template-columns:repeat(3,1fr)}
   .chart,.table,.list{grid-column:span 12}
 }
+
+.metric{display:flex;flex-direction:column;gap:6px;background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:12px}
+.metric__label{color:var(--muted);font-size:12px}
+.metric__value{color:var(--text);font-weight:600}
+.metric__bar{height:8px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.metric__bar-fill{height:100%;background:var(--primary);border-radius:999px}
+
+.task-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px;border-bottom:1px solid var(--border)}
+.task-name{color:var(--text);font-weight:500}
+.task-metrics{display:flex;gap:12px;color:var(--muted)}
+
+/* Ensure charts adapt to theme and contrast */
+apx-chart{width:100%}
