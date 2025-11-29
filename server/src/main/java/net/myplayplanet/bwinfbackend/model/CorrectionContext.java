@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "correction_context")
 public class CorrectionContext {
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     @Column(name = "id", nullable = false)
     private Long id;
@@ -22,4 +23,13 @@ public class CorrectionContext {
     @Column(name = "round", nullable = false)
     private Round round;
 
+
+    @Override
+    public String toString() {
+        return "CorrectionContext{" +
+                "id=" + id +
+                ", year=" + year +
+                ", round=" + round +
+                '}';
+    }
 }
