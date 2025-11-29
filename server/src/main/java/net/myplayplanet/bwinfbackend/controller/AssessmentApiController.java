@@ -1,6 +1,10 @@
 package net.myplayplanet.bwinfbackend.controller;
 
+import lombok.RequiredArgsConstructor;
 import net.myplayplanet.bwinfbackend.dto.*;
+import net.myplayplanet.bwinfbackend.model.TaskType;
+import net.myplayplanet.bwinfbackend.service.statistic.AssessmentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -18,46 +22,19 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class AssessmentApiController {
 
-    @GetMapping("/progress/overall")
-    public OverallProgressDTO getOverallProgress() {
-        TaskProgressDTO.Percentages pct = TaskProgressDTO.Percentages.builder().first(0).second(0).total(0).build();
-        return OverallProgressDTO.builder()
-                .totalTasks(0)
-                .totalSubmissions(0)
-                .firstAssessmentsDone(0)
-                .secondAssessmentsDone(0)
-                .totalAssessmentsDone(0)
-                .firstMissing(0)
-                .secondMissing(0)
-                .totalMissing(0)
-                .percentages(pct)
-                .byTask(Collections.emptyList())
-                .updatedAt(Instant.now().toString())
-                .build();
+    private final AssessmentService assessmentService;
+
+    @GetMapping("/progress/ctxt/{ctxtId}/overall")
+    public OverallProgressDTO getOverallProgress(@PathVariable Long ctxtId) {
+        return this.assessmentService.calculateOverallProgress(ctxtId);
     }
 
-    @GetMapping("/progress/tasks/{taskId}")
-    public TaskProgressDTO getTaskProgress(@PathVariable String taskId) {
-        return TaskProgressDTO.builder()
-                .taskId(taskId)
-                .taskName("Task " + taskId)
-                .totalSubmissions(0)
-                .firstAssessmentsDone(0)
-                .secondAssessmentsDone(0)
-                .totalAssessmentsDone(0)
-                .firstMissing(0)
-                .secondMissing(0)
-                .totalMissing(0)
-                .percentages(TaskProgressDTO
-                        .Percentages.builder()
-                        .first(0)
-                        .second(0)
-                        .total(0)
-                        .build())
-                .updatedAt(Instant.now().toString())
-                .build();
+    @GetMapping("/progress/ctxt/{ctxtId}/type/{type}/tasks/{taskId}")
+    public TaskProgressDTO getTaskProgress(@PathVariable Long ctxtId, @PathVariable String type, @PathVariable Integer taskId) {
+        return this.assessmentService.calculateTaskProgressDto(ctxtId, TaskType.valueOf(type), taskId);
     }
 
     @GetMapping("/rates")

@@ -22,4 +22,11 @@ public class Corrector {
     @Column(name = "shortName", unique = true)
     private String shortName;
 
+    @Override
+    public String toString() {
+        return "Corrector{" +
+                "id=" + id +
+                ", shortName='" + shortName + '\'' +
+                '}';
+    }
 }
