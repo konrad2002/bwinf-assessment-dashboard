@@ -1,7 +1,0 @@
-<div class="label">{{ label() }}</div>
-<div class="value" aria-live="polite">
-  {{ value() }}<span class="unit" @if(unit())>{{ unit() }}</span>
-</div>
-@if(trend()) {
-  <div class="trend" [class]="trend()">{{ trend() }}</div>
-}
