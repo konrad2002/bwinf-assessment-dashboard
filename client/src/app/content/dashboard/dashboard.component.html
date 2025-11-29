@@ -1,10 +1,22 @@
 <h1>System Overview</h1>
 
-@if (overallProgress$) {
+@if (overallProgress) {
   <ul>
     <li>
       <b>Submissions: </b>
-      {{(overallProgress$ | async)?.totalSubmissions}}
+      {{overallProgress.totalSubmissions}}
     </li>
+  </ul>
+}
+
+
+@if (taskProgress) {
+  <ul>
+    @for (task of taskProgress; track task.taskId) {
+      <li>
+        <b>{{task.taskName}}: </b>
+        {{task.totalSubmissions}}
+      </li>
+    }
   </ul>
 }
