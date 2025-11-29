@@ -71,6 +71,7 @@ public class WebScraper {
 
         taskProgressDataPoint.setOpen(scrapedData.unstarted());
         taskProgressDataPoint.setOnlyFirstDone(scrapedData.firstDone());
+        taskProgressDataPoint.setInProgress(scrapedData.inProgres());
         taskProgressDataPoint.setDone(scrapedData.done());
         taskProgressDataPoint.setCorrectionContext(referenceById);
         taskProgressDataPoint.setCreatedAt(LocalDateTime.now());

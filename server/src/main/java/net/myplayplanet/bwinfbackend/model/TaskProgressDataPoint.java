@@ -36,6 +36,9 @@ public class TaskProgressDataPoint {
     @Column(name = "only_first_done", nullable = false)
     private Integer onlyFirstDone;
 
+    @Column(name = "inProgress", nullable = false)
+    private Integer inProgress;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
