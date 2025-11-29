@@ -43,36 +43,25 @@
     </section>
 
     <section class="panel chart" aria-label="Overall completion">
-      @if (overallProgress()) {
-        <apx-chart
-          [series]="completionSeries()"
-          [chart]="{ type: 'donut', animations: { enabled: true } }"
-          [labels]="completionLabels"
-          [title]="{ text: 'Overall Completion' }"
-          [colors]="['#22c55e', '#ef4444']"
-          [legend]="{ position: 'bottom' }"
-          [responsive]="[{ breakpoint: 1024, options: { chart: { width: '100%' }, legend: { position: 'bottom' } } }]">
-        </apx-chart>
-      } @else {
-        <p>Loading overall completion…</p>
-      }
+      <apx-chart
+        [series]="completionSeries()"
+        [chart]="completionChartOptions.chart"
+        [labels]="completionLabels"
+        [title]="completionChartOptions.title"
+        [legend]="completionChartOptions.legend">
+      </apx-chart>
     </section>
 
     <section class="panel table" aria-label="Task submissions">
-      @if (taskProgress().length) {
-        <apx-chart
-          [series]="submissionsByTaskSeries()"
-          [chart]="{ type: 'bar', animations: { enabled: true } }"
-          [xaxis]="{ categories: submissionsByTaskCategories() }"
-          [title]="{ text: 'Submissions by Task' }"
-          [plotOptions]="{ bar: { horizontal: false, columnWidth: '55%' } }"
-          [dataLabels]="{ enabled: false }"
-          [colors]="['#3b82f6']"
-          [grid]="{ borderColor: 'var(--border)' }">
-        </apx-chart>
-      } @else {
-        <p>Loading task submissions…</p>
-      }
+      <apx-chart
+        [series]="submissionsByTaskSeries()"
+        [chart]="submissionsChartOptions.chart"
+        [xaxis]="{ categories: submissionsByTaskCategories() }"
+        [title]="submissionsChartOptions.title"
+        [plotOptions]="submissionsChartOptions.plotOptions"
+        [dataLabels]="submissionsChartOptions.dataLabels"
+        [grid]="submissionsChartOptions.grid">
+      </apx-chart>
     </section>
 
     <section class="panel list" aria-label="Tasks list">

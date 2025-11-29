@@ -33,6 +33,15 @@ export class DashboardComponent implements OnInit {
 
   completionLabels = ['Done', 'Missing'];
 
+  // Stable chart options to avoid re-creation and layout jumps
+  completionChartOptions = {
+    chart: { type: 'donut', animations: { enabled: false }, height: 320 },
+    legend: { position: 'bottom' },
+    colors: ['#22c55e', '#ef4444'],
+    title: { text: 'Overall Completion' },
+    responsive: [{ breakpoint: 1024, options: { chart: { height: 280 }, legend: { position: 'bottom' } } }]
+  } as const;
+
   submissionsByTaskSeries = computed(() => {
     const tasks = this.taskProgress();
     return [{
@@ -42,6 +51,15 @@ export class DashboardComponent implements OnInit {
   });
 
   submissionsByTaskCategories = computed(() => this.taskProgress().map(t => t.taskName ?? t.taskId));
+
+  submissionsChartOptions = {
+    chart: { type: 'bar', animations: { enabled: false }, height: 360, toolbar: { show: false } },
+    plotOptions: { bar: { horizontal: false, columnWidth: '55%' } },
+    dataLabels: { enabled: false },
+    colors: ['#3b82f6'],
+    grid: { borderColor: 'var(--border)' },
+    title: { text: 'Submissions by Task' }
+  } as const;
 
   ngOnInit(): void {
     console.log("DashboardComponent ngOnInit - Setting up polling stream");

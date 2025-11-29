@@ -25,4 +25,6 @@
 .task-metrics{display:flex;gap:12px;color:var(--muted)}
 
 /* Ensure charts adapt to theme and contrast */
-apx-chart{width:100%}
+apx-chart{width:100%;display:block}
+.chart apx-chart{min-height:320px}
+.table apx-chart{min-height:360px}
