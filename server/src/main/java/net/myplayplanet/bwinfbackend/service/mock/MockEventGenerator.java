@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.myplayplanet.bwinfbackend.dto.*;
 import net.myplayplanet.bwinfbackend.model.TaskType;
 import net.myplayplanet.bwinfbackend.service.event.EventService;
+import net.myplayplanet.bwinfbackend.service.statistic.AssessmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class MockEventGenerator {
 
 
     private final EventService eventService;
+    private final AssessmentService assessmentService;
     private final RandomizerService random;
 
     private static final Collection<String> corrector = List.of("paulf", "konradw");
@@ -27,6 +29,8 @@ public class MockEventGenerator {
 
     @Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
     public void generateEvents() {
+        CombinedProgressDataPointDto combinedDto = this.assessmentService.calculateCombinedProgressDataPointDto(1L);
+
         NewEvaluationEventDto event = new NewEvaluationEventDto(
                 this.random.getRandomElement(taskType),
                 this.random.getRandomElement(taskNumbers),
@@ -34,13 +38,7 @@ public class MockEventGenerator {
                         this.random.getRandomElement(correctorId),
                         this.random.getRandomElement(corrector)
                 ),
-                new CombinedProgressDataPointDto(
-                        new GlobalProgressDataPointDto(
-                                new ProgressDataPointDto(10, 2, 6, 1, 19),
-                                LocalDateTime.now()
-                        ),
-                        List.of()
-                )
+                combinedDto
         );
         eventService.emitEvent(event);
     }

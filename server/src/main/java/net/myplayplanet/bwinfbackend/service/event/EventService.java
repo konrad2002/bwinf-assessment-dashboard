@@ -10,7 +10,7 @@ public class EventService {
 
     // Thread-safe sink to emit events manually
     @Getter
-    private final Sinks.Many<NewEvaluationEventDto> sink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<NewEvaluationEventDto> sink = Sinks.many().replay().latest();
 
     public void emitEvent(NewEvaluationEventDto dto) {
         sink.tryEmitNext(dto);
