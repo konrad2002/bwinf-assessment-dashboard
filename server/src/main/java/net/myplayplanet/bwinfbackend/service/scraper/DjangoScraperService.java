@@ -1,5 +1,6 @@
 package net.myplayplanet.bwinfbackend.service.scraper;
 
+import net.myplayplanet.bwinfbackend.model.TaskType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -16,17 +17,17 @@ public class DjangoScraperService {
     private final WebClient client;
     private List<String> sessionCookies = null;
 
-        public DjangoScraperService() {
+    public DjangoScraperService() {
         int bufferSize = 10 * 1024 * 1024; // 10 MB, adjust as needed
         WebClient.Builder builder = WebClient.builder()
-            .defaultHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0")
-            .exchangeStrategies(
-                org.springframework.web.reactive.function.client.ExchangeStrategies.builder()
-                    .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(bufferSize))
-                    .build()
-            );
+                .defaultHeader(HttpHeaders.USER_AGENT, "Mozilla/5.0")
+                .exchangeStrategies(
+                        org.springframework.web.reactive.function.client.ExchangeStrategies.builder()
+                                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(bufferSize))
+                                .build()
+                );
         this.client = builder.build();
-        }
+    }
 
     // Triggers login and stores session cookies
     public Mono<String> loginAndStoreSession() {
@@ -37,11 +38,13 @@ public class DjangoScraperService {
     }
 
     // Scrapes using stored session cookies
-    public Mono<String> scrapeWithStoredSession() {
+    public Mono<String> scrapeWithStoredSession(String host,
+                                                TaskType taskType,
+                                                Integer taskNumber) {
         if (sessionCookies == null) {
             return Mono.error(new IllegalStateException("No session cookies stored. Please login first."));
         }
-        return scrapeTaskPage(sessionCookies);
+        return scrapeTaskPage(sessionCookies, host, taskType, taskNumber);
     }
 
     // ------------------------------------------------------
@@ -86,8 +89,11 @@ public class DjangoScraperService {
     // ------------------------------------------------------
     // 3) GET the protected page using the session
     // ------------------------------------------------------
-    private Mono<String> scrapeTaskPage(List<String> cookies) {
-        String url = "http://192.168.146.184/task/J2/";
+    private Mono<String> scrapeTaskPage(List<String> cookies,
+                                        String host,
+                                        TaskType taskType,
+                                        Integer taskNumber) {
+        String url = buildUrl(host, taskType, taskNumber);
 
         WebClient.RequestHeadersSpec<?> headersSpec = (WebClient.RequestHeadersSpec<?>) client.get()
                 .uri(url)
@@ -96,6 +102,12 @@ public class DjangoScraperService {
                 .exchangeToMono(clientResponse ->
                         clientResponse.bodyToMono(String.class)
                 );
+    }
+
+    private String buildUrl(String host,
+                            TaskType taskType,
+                            Integer taskNumber) {
+        return "http://" + host + "/" + taskType.shortName() + taskNumber.toString() + "/";
     }
 
     // ------------------------------------------------------
@@ -117,5 +129,6 @@ public class DjangoScraperService {
         return merged;
     }
 
-    private record LoginData(String csrftoken, List<String> cookies) {}
+    private record LoginData(String csrftoken, List<String> cookies) {
+    }
 }

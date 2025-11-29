@@ -45,6 +45,9 @@ public class Evaluation {
     @Column(name = "points_deducted", nullable = false)
     private Integer pointsDeducted;
 
+    @Column(name = "submission_id", nullable = false)
+    private String submissionId;
+
     @Override
     public String toString() {
         return "Evaluation{" +
@@ -56,6 +59,7 @@ public class Evaluation {
                 ", taskType=" + taskType +
                 ", taskNumber=" + taskNumber +
                 ", pointsDeducted=" + pointsDeducted +
+                ", submissionId=" + submissionId +
                 '}';
     }
 }
