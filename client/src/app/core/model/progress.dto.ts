@@ -1,8 +1,10 @@
 // DTOs describing progress statistics per task and overall
 
+import {TaskType} from './task-type.enum';
+
 export interface TaskProgressDTO {
   taskId: string;
-  taskName?: string;
+  taskName?: TaskType;
   totalSubmissions: number;
   firstAssessmentsDone: number;
   secondAssessmentsDone: number;
@@ -35,4 +37,10 @@ export interface OverallProgressDTO {
   };
   byTask: TaskProgressDTO[];
   updatedAt: string;
+}
+
+export namespace TaskProgressDTO {
+  export function getTaskName(t: TaskProgressDTO): string {
+    return ((t.taskName == TaskType.BWINF) ? 'A' : 'J') + t.taskId;
+  }
 }

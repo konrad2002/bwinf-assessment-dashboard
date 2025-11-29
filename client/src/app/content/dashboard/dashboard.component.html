@@ -19,7 +19,7 @@
           <div class="metric__bar" aria-hidden="true">
             <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.first"></div>
           </div>
-          <div class="sr-only">{{overallProgress()!.percentages.first}}% complete</div>
+          <div class="sr-only">{{overallProgress()!.percentages.first | number:'1.0-2'}}% complete</div>
         </div>
 
         <div class="metric" role="group" aria-label="Second assessments">
@@ -28,7 +28,7 @@
           <div class="metric__bar" aria-hidden="true">
             <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.second"></div>
           </div>
-          <div class="sr-only">{{overallProgress()!.percentages.second}}% complete</div>
+          <div class="sr-only">{{overallProgress()!.percentages.second | number:'1.0-2'}}% complete</div>
         </div>
 
         <div class="metric" role="group" aria-label="Total assessed">
@@ -37,14 +37,14 @@
           <div class="metric__bar" aria-hidden="true">
             <div class="metric__bar-fill" [style.width.%]="overallProgress()!.percentages.total"></div>
           </div>
-          <div class="sr-only">{{overallProgress()!.percentages.total}}% complete</div>
+          <div class="sr-only">{{overallProgress()!.percentages.total | number:'1.0-2'}}% complete</div>
         </div>
       }
     </section>
 
     <section class="panel chart" aria-label="Overall completion">
       <apx-chart
-        [series]="completionSeries()"
+        [series]="completionSeriesSignal()"
         [chart]="completionChartOptions.chart"
         [labels]="completionLabels"
         [title]="completionChartOptions.title"
@@ -54,9 +54,9 @@
 
     <section class="panel table" aria-label="Task submissions">
       <apx-chart
-        [series]="submissionsByTaskSeries()"
+        [series]="submissionsSeriesSignal()"
         [chart]="submissionsChartOptions.chart"
-        [xaxis]="{ categories: submissionsByTaskCategories() }"
+        [xaxis]="{ categories: submissionsCategoriesSignal() }"
         [title]="submissionsChartOptions.title"
         [plotOptions]="submissionsChartOptions.plotOptions"
         [dataLabels]="submissionsChartOptions.dataLabels"
@@ -70,7 +70,7 @@
           @for (task of taskProgress(); track task.taskId) {
             <li>
               <div class="task-row">
-                <div class="task-name">{{task.taskName ?? task.taskId}}</div>
+                <div class="task-name">{{getTaskName(task)}}</div>
                 <div class="task-metrics">
                   <span title="Total submissions"><b>Σ</b> {{task.totalSubmissions}}</span>
                   <span title="Total done"><b>✓</b> {{task.totalAssessmentsDone}}</span>

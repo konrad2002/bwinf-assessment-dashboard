@@ -1,5 +1,7 @@
 // DTOs describing assessment rate time-series for overall and per task
 
+import {TaskType} from './task-type.enum';
+
 export interface RatePointDTO {
   // ISO 8601 UTC timestamp bucket (e.g., minute or hour)
   timestamp: string;
@@ -14,7 +16,7 @@ export interface RatePointDTO {
 export interface AssessmentRateSeriesDTO {
   // When null or omitted, represents overall across all tasks
   taskId?: string | null;
-  taskName?: string;
+  taskName?: TaskType;
   bucketSize: 'minute' | 'hour' | 'day';
   points: RatePointDTO[];
   // Time range covered by the series (ISO 8601 UTC)
