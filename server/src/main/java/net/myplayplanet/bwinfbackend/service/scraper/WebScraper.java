@@ -11,6 +11,7 @@ import net.myplayplanet.bwinfbackend.service.CorrectorService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +31,21 @@ public class WebScraper {
     private final CorrectionContextRepository correctionContextRepository;
     private final TaskProgressDataPointRepository taskProgressDataPointRepository;
     private final CorrectorService correctorService;
+
+
+    @Scheduled(fixedRate = 60000) // 1x per minute
+    public void runScraper() {
+
+        long correctionContext = 1L;
+
+        for (int i = 1; i <= 2; i++) {
+            scrape(correctionContext, TaskType.JWINF, i);
+        }
+
+        for (int i = 1; i <= 5; i++) {
+            scrape(correctionContext, TaskType.BWINF, i);
+        }
+    }
 
     public void scrape(Long correctionContext, TaskType taskType, Integer taskNumber) {
         // Use default values if not provided
