@@ -34,7 +34,9 @@ public class WebScraper {
 
         CorrectionContext referenceById = this.correctionContextRepository.getReferenceById(correctionContext);
 
-        EvaluationScraper.ParseResult scrapedData = scraper.scrapeWithStoredSession("localhost", taskType, taskNumber)
+        this.scraper.loginAndStoreSession().block();
+
+        EvaluationScraper.ParseResult scrapedData = scraper.scrapeWithStoredSession("192.168.146.184", taskType, taskNumber)
                 .flatMap(html -> {
                     try {
                         Document doc = Jsoup.parse(html);

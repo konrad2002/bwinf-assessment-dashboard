@@ -27,7 +27,7 @@ public class MockDataGenerator {
     private final static Collection<String> submissionIds = List.of("0001", "0002", "0003");
 
 
-    @Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
+    //@Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
     public void generateEvaluationData() {
         EvaluationDto evaluationDto = EvaluationDto.builder()
                 .taskNumber(getRandomElement(taskNumbers))
