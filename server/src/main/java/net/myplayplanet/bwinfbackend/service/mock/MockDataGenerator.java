@@ -20,6 +20,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class MockDataGenerator {
 
     private final IntegrationController controller;
+    private final RandomizerService randomizerService;
 
     private final static Collection<String> correctors = List.of("paulf", "konradw");
     private final static Collection<Integer> taskNumbers = List.of(1, 2, 3, 4, 5);
@@ -30,12 +31,12 @@ public class MockDataGenerator {
     //@Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
     public void generateEvaluationData() {
         EvaluationDto evaluationDto = EvaluationDto.builder()
-                .taskNumber(getRandomElement(taskNumbers))
+                .taskNumber(this.randomizerService.getRandomElement(taskNumbers))
                 .evaluationType(EvaluationType.FIRST)
-                .pointsDeducted(getRandomElement(deductedPoints))
-                .corrector(new CorrectorDto(null, getRandomElement(correctors)))
+                .pointsDeducted(this.randomizerService.getRandomElement(deductedPoints))
+                .corrector(new CorrectorDto(null, this.randomizerService.getRandomElement(correctors)))
                 .taskType(TaskType.JWINF)
-                .submissionId(getRandomElement(submissionIds))
+                .submissionId(this.randomizerService.getRandomElement(submissionIds))
                 .correctionContextId(1L)
                 .build();
 
@@ -46,21 +47,5 @@ public class MockDataGenerator {
         );
     }
 
-    private static <T> T getRandomElement(Collection<T> collection) {
-        if (collection == null || collection.isEmpty()) {
-            return null;
-        }
-
-        // If it's a List, we can access by index directly
-        if (collection instanceof List<T> list) {
-            int randomIndex = ThreadLocalRandom.current().nextInt(list.size());
-            return list.get(randomIndex);
-        }
-
-        // For generic Collection, convert to List
-        List<T> list = new ArrayList<>(collection);
-        int randomIndex = ThreadLocalRandom.current().nextInt(list.size());
-        return list.get(randomIndex);
-    }
 
 }

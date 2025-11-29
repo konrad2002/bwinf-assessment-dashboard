@@ -3,15 +3,18 @@ package net.myplayplanet.bwinfbackend.service.scraper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.bwinfbackend.dto.CorrectorDto;
+import net.myplayplanet.bwinfbackend.dto.NewEvaluationEventDto;
 import net.myplayplanet.bwinfbackend.model.*;
 import net.myplayplanet.bwinfbackend.repository.CorrectionContextRepository;
 import net.myplayplanet.bwinfbackend.repository.EvaluationRepository;
 import net.myplayplanet.bwinfbackend.repository.TaskProgressDataPointRepository;
 import net.myplayplanet.bwinfbackend.service.CorrectorService;
+import net.myplayplanet.bwinfbackend.service.event.EventService;
+import net.myplayplanet.bwinfbackend.service.statistic.AssessmentService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +34,8 @@ public class WebScraper {
     private final CorrectionContextRepository correctionContextRepository;
     private final TaskProgressDataPointRepository taskProgressDataPointRepository;
     private final CorrectorService correctorService;
+    private final EventService eventService;
+    private final AssessmentService assessmentService;
 
 
     public void runScraper() {
@@ -82,6 +87,7 @@ public class WebScraper {
                 .filter(this::isDiff)
                 .collect(Collectors.toSet());
 
+
         TaskProgressDataPoint taskProgressDataPoint = new TaskProgressDataPoint();
 
         taskProgressDataPoint.setOpen(scrapedData.unstarted());
@@ -95,6 +101,14 @@ public class WebScraper {
 
         this.taskProgressDataPointRepository.save(taskProgressDataPoint);
         this.evaluationRepository.saveAll(collect);
+
+        this.assessmentService.saveNewProgressDataPoint(correctionContext);
+
+        for (Evaluation evaluation : collect) {
+            this.eventService.emitEvent(new NewEvaluationEventDto(evaluation.getTaskType(), evaluation.getTaskNumber(),
+                    new CorrectorDto(evaluation.getCorrector().getId(), evaluation.getCorrector().getShortName()),
+                    this.assessmentService.calculateCombinedProgressDataPointDto(correctionContext)));
+        }
     }
 
     private boolean isDiff(Evaluation evaluation) {

@@ -123,12 +123,6 @@ public class AssessmentService {
     public void saveNewProgressDataPoint(Long correctionContextId) {
         Set<Evaluation> evaluations = this.evaluationRepository.findLatestEvaluationsByCorrectionContext(correctionContextId);
 
-        String updatedAt = evaluations.stream()
-                .map(Evaluation::getCreatedAt)
-                .max(LocalDateTime::compareTo)
-                .map(LocalDateTime::toString)
-                .orElse(Instant.now().toString());
-
         // Build per-task progress
         List<TaskProgressDataPoint> byTask = evaluations.stream()
                 .collect(Collectors.groupingBy(e -> e.getTaskType() + "-" + e.getTaskNumber()))
