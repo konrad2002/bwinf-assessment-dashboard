@@ -17,7 +17,6 @@ import {SubscriptionLike} from 'rxjs';
 import {EventSourceService} from '../../core/service/events.service';
 import {ProgressBar} from '../progress-bar/progress-bar';
 import {BiberStage} from '../biber-stage/biber-stage';
-import {CombinedProgressDataDto} from '../../core/model/combined-progress-data.dto';
 import {CorrectorDto} from '../../core/model/corrector.dto';
 import {EventSseDataDto} from '../../core/model/event-sse-data.dto';
 
@@ -85,5 +84,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.eventSourceSubscription)
       this.eventSourceSubscription.unsubscribe();
     this.eventService.close();
+  }
+
+  onBiberDone(id: number) {
+    const idx = this.bibers.findIndex(b => b.id === id);
+    if (idx >= 0) {
+      this.bibers.splice(idx, 1);
+      this.cdr.detectChanges();
+    }
   }
 }

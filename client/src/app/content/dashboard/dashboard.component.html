@@ -1,6 +1,6 @@
 <app-progress-bar [value]="dummy()" [max]="100"></app-progress-bar>
 
-<app-biber-stage [biberCount]="bibers"></app-biber-stage>
+<app-biber-stage [biberCount]="bibers" (remove)="onBiberDone($event)"></app-biber-stage>
 
 @if (overall) {
   <app-progress-view [overall]="overall" [tasks]="tasks"></app-progress-view>

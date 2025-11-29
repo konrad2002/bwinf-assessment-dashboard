@@ -1,3 +1,8 @@
 @for (biber of biberCount(); track biber.id) {
-  <app-biber class="biber" [name]="biber.corrector.shortName"></app-biber>
+  <app-biber
+    class="biber"
+    [attr.data-id]="biber.id"
+    [style.top.px]="laneFor(biber.id) * 28"
+    [name]="biber.corrector.shortName"
+  ></app-biber>
 }
