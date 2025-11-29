@@ -7,6 +7,7 @@ import net.myplayplanet.bwinfbackend.model.*;
 import net.myplayplanet.bwinfbackend.repository.CorrectionContextRepository;
 import net.myplayplanet.bwinfbackend.repository.EvaluationRepository;
 import net.myplayplanet.bwinfbackend.repository.TaskProgressDataPointRepository;
+import net.myplayplanet.bwinfbackend.service.CorrectorService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ public class WebScraper {
     private final EvaluationRepository evaluationRepository;
     private final CorrectionContextRepository correctionContextRepository;
     private final TaskProgressDataPointRepository taskProgressDataPointRepository;
+    private final CorrectorService correctorService;
 
     public void scrape(Long correctionContext, TaskType taskType, Integer taskNumber) {
         // Use default values if not provided
@@ -51,8 +53,18 @@ public class WebScraper {
             log.error("Could not scrape data");
             return;
         }
+
+        scrapedData.evaluations().keySet().stream().map(corrector ->
+                this.correctorService.getOrCreate(corrector.getShortName()));
+
         Set<Evaluation> collect = scrapedData.evaluations().values().stream().flatMap(Collection::stream).collect(Collectors.toSet())
-                .stream().filter(this::isDiff)
+                .stream()
+                .peek(evaluation -> {
+                    evaluation.setTaskType(taskType);
+                    evaluation.setTaskNumber(taskNumber);
+                    evaluation.setCorrector(this.correctorService.getOrCreate(evaluation.getCorrector().getShortName()));
+                })
+                .filter(this::isDiff)
                 .collect(Collectors.toSet());
 
         TaskProgressDataPoint taskProgressDataPoint = new TaskProgressDataPoint();

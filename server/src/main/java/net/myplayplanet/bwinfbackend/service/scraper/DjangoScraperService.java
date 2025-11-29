@@ -107,7 +107,7 @@ public class DjangoScraperService {
     private String buildUrl(String host,
                             TaskType taskType,
                             Integer taskNumber) {
-        return "http://" + host + "/" + taskType.shortName() + taskNumber.toString() + "/";
+        return "http://" + host + "/task/" + taskType.shortName() + taskNumber.toString() + "/";
     }
 
     // ------------------------------------------------------
