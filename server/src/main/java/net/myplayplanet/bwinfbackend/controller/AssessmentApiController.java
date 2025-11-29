@@ -27,14 +27,14 @@ public class AssessmentApiController {
 
     private final AssessmentService assessmentService;
 
-    @GetMapping("/progress/ctxt/{ctxtId}/overall")
-    public OverallProgressDTO getOverallProgress(@PathVariable Long ctxtId) {
-        return this.assessmentService.calculateOverallProgress(ctxtId);
+    @GetMapping("/progress/{ctxId}/overall")
+    public OverallProgressDTO getOverallProgress(@PathVariable Long ctxId) {
+        return this.assessmentService.calculateOverallProgress(ctxId);
     }
 
-    @GetMapping("/progress/ctxt/{ctxtId}/type/{type}/tasks/{taskId}")
-    public TaskProgressDTO getTaskProgress(@PathVariable Long ctxtId, @PathVariable String type, @PathVariable Integer taskId) {
-        return this.assessmentService.calculateTaskProgressDto(ctxtId, TaskType.valueOf(type), taskId);
+    @GetMapping("/progress/{ctxId}/type/{type}/tasks/{taskId}")
+    public TaskProgressDTO getTaskProgress(@PathVariable Long ctxId, @PathVariable String type, @PathVariable Integer taskId) {
+        return this.assessmentService.calculateTaskProgressDto(ctxId, TaskType.valueOf(type), taskId);
     }
 
     @GetMapping("/rates")
