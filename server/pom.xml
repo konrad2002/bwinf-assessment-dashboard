@@ -68,6 +68,18 @@
             <artifactId>jsoup</artifactId>
             <version>1.21.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>3.5.7</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+            <version>4.1.100.Final</version> <!-- Use the Netty version matching your project -->
+            <classifier>osx-aarch_64</classifier> <!-- Use osx-x86_64 if on Intel Mac -->
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
