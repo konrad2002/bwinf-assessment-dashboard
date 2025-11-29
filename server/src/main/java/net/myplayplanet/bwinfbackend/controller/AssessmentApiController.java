@@ -16,10 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * API controller implementing the endpoints defined in api.md.
- * NOTE: All responses are stubbed placeholders; replace with real service layer.
- */
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -35,6 +31,12 @@ public class AssessmentApiController {
     @GetMapping("/progress/{ctxId}/type/{type}/tasks/{taskId}")
     public TaskProgressDTO getTaskProgress(@PathVariable Long ctxId, @PathVariable String type, @PathVariable Integer taskId) {
         return this.assessmentService.calculateTaskProgressDto(ctxId, TaskType.valueOf(type), taskId);
+    }
+
+    // TODO: return calculated progress dto for all tasks in the given context
+    @GetMapping("/progress/{ctxId}/all")
+    public List<TaskProgressDTO> getTaskProgressForAll(@PathVariable Long ctxId) {
+        return List.of(this.assessmentService.calculateTaskProgressDto(ctxId, TaskType.JWINF, 1));
     }
 
     @GetMapping("/rates")
