@@ -32,6 +32,7 @@ public class IntegrationService {
         evaluation.setCreatedAt(LocalDateTime.now());
         evaluation.setCorrectionContext(this.correctionContextRepository.getReferenceById(evaluationDto.getCorrectionContextId()));
         evaluation.setPointsDeducted(evaluationDto.getPointsDeducted());
+        evaluation.setTaskType(evaluationDto.getTaskType());
         System.out.println(evaluation);
         this.evaluationRepository.save(evaluation);
     }
