@@ -1,6 +1,6 @@
 package net.myplayplanet.bwinfbackend.service.scraper;
 
-import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.bwinfbackend.model.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class EvaluationScraper {
 
@@ -20,87 +21,123 @@ public class EvaluationScraper {
                               int unstarted, int firstDone, int done) {
     }
 
-    /**
-     * Parses a Jsoup Document and returns a map of Corrector -> list of Evaluations
-     */
     public ParseResult parseTable(Document doc,
                                   CorrectionContext context) {
+
+        log.info("Starting parseTable");
+
+        log.info("Document {}", doc);
+
         Map<String, Corrector> correctorMap = new HashMap<>();
         Map<Corrector, List<Evaluation>> evaluationsByCorrector = new HashMap<>();
 
         Elements rows = doc.select("tr");
+        log.info("Found {} table rows", rows.size());
 
         int unstarted = 0, firstDone = 0, done = 0;
 
         for (Element row : rows) {
             Elements tds = row.select("td");
-            if (tds.size() < 2) continue;
+            if (tds.size() < 2) {
+                log.info("Skipping row without enough TDs");
+                continue;
+            }
 
-            // td containing points and corrector name
             Element td = tds.get(1);
             Element small = td.selectFirst("small.text-muted");
-            if (small == null) continue;
+            String name = null;
+            if (small != null) {
+                name = small.text().trim();
+            }
 
-            String name = small.text().trim();
-            String text = td.ownText().trim(); // points before the <small>
+            String text = td.ownText().trim();
 
+            log.info("Processing corrector='{}' | points-text='{}'", name, text);
+            int points = 0;
             try {
-                int points = Integer.parseInt(text);
+                points = Integer.parseInt(text);
+                log.info("Parsed points={}", points);
 
-                // Optional: extract submissionId from first td
-                String submissionId = "";
-                Element submissionLink = tds.get(0).selectFirst("a");
-                if (submissionLink != null) {
-                    String href = submissionLink.attr("href"); // e.g. "/submission/JW/3287/"
-                    String[] parts = href.split("/");
-                    submissionId = parts[parts.length - 1].isEmpty() ? parts[parts.length - 2] : parts[parts.length - 1];
+            } catch (NumberFormatException e) {
+                log.info("Could not parse points '{}'", text);
+            }
+            String submissionId = "";
+            Element submissionLink = tds.get(0).selectFirst("a");
+            if (submissionLink != null) {
+                String href = submissionLink.attr("href");
+                log.info("Found submission link: {}", href);
+
+                String[] parts = href.split("/");
+                submissionId = parts[parts.length - 1].isEmpty()
+                        ? parts[parts.length - 2]
+                        : parts[parts.length - 1];
+
+                log.info("Parsed submission ID={}", submissionId);
+            }
+
+            // Determine evaluation type
+            EvaluationType evaluationType = null;
+            Element form = row.selectFirst("form");
+
+            if (form != null) {
+                String formText = form.text().toLowerCase();
+                log.info("Form text={}", formText);
+
+                if (formText.contains("claim zweitbewertung")) {
+                    evaluationType = EvaluationType.FIRST;
+                    firstDone++;
+                    log.info("evaluationType=FIRST");
+                } else if (formText.contains("claim erstbewertung")) {
+                    evaluationType = null;
+                    unstarted++;
+                    log.info("evaluationType=EMPTY (unstarted)");
+                } else {
+                    evaluationType = EvaluationType.SECOND;
+                    done++;
+                    log.info("evaluationType=SECOND");
                 }
+            } else {
+                log.info("No form found → evaluationType=EMPTY");
+            }
 
-                // Determine EvaluationType
-                EvaluationType evaluationType = null;
-                Element form = row.selectFirst("form");
-                if (form != null) {
-                    String formText = form.text().toLowerCase();
-                    if (formText.contains("claim zweitbewertung")) {
-                        evaluationType = EvaluationType.FIRST;
-                        firstDone++;
-                    } else if (formText.contains("claim erstbewertung")) {
-                        unstarted++;
-                    } else {
-                        evaluationType = EvaluationType.SECOND;
-                        done++;
-                    }
+            Evaluation eval = new Evaluation();
 
-                }
-                // If no form/button, evaluationType remains null (EMPTY)
-
-                // Get or create Corrector
+            // Get or create corrector
+            if (name != null) {
                 Corrector corrector = correctorMap.computeIfAbsent(name, n -> {
+                    log.info("Creating new Corrector '{}'", n);
                     Corrector c = new Corrector();
                     c.setShortName(n);
                     return c;
                 });
-
-                // Create Evaluation object
-                Evaluation eval = new Evaluation();
                 eval.setCorrector(corrector);
-                eval.setSubmissionId(submissionId);
-                eval.setCorrectionContext(context);
-                eval.setEvaluationType(evaluationType);
-                eval.setCreatedAt(LocalDateTime.now());
 
-                if (context.getRound() == Round.FIRST) {
-                    eval.setPointsDeducted(5 - points);
-                } else {
-                    eval.setPointsDeducted(20 - points);
-                }
-
-                evaluationsByCorrector.computeIfAbsent(corrector, k -> new ArrayList<>()).add(eval);
-
-            } catch (NumberFormatException e) {
-                // ignore invalid numbers
+                evaluationsByCorrector
+                        .computeIfAbsent(corrector, k -> new ArrayList<>())
+                        .add(eval);
             }
+
+
+            // Build Evaluation
+            eval.setSubmissionId(submissionId);
+            eval.setCorrectionContext(context);
+            eval.setEvaluationType(evaluationType);
+            eval.setCreatedAt(LocalDateTime.now());
+
+            if (context.getRound() == Round.FIRST) {
+                eval.setPointsDeducted(5 - points);
+            } else {
+                eval.setPointsDeducted(20 - points);
+            }
+
+            log.info("Created evaluation: submission={}, corrector={}, type={}, pointsDeducted={}",
+                    submissionId, name, evaluationType, eval.getPointsDeducted());
+
+
         }
+
+        log.info("Parse finished: unstarted={}, firstDone={}, done={}",
+                unstarted, firstDone, done);
 
         return new ParseResult(evaluationsByCorrector, unstarted, firstDone, done);
     }
