@@ -25,7 +25,7 @@ public class MockDataGenerator {
     private final static Collection<Integer> taskNumbers = List.of(1, 2, 3, 4, 5);
     private final static Collection<Integer> deductedPoints = List.of(1, 2, 3, 4, 5);
 
-    // @Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
+    @Scheduled(fixedRate = 5000) // 5000 ms = 5 seconds
     public void generateEvaluationData() {
         EvaluationDto evaluationDto = EvaluationDto.builder()
                 .taskNumber(getRandomElement(taskNumbers))
@@ -35,6 +35,8 @@ public class MockDataGenerator {
                 .taskType(TaskType.JWINF)
                 .correctionContextId(1L)
                 .build();
+
+        System.out.println(evaluationDto);
 
         this.controller.publishNewEvaluation(
                 evaluationDto
