@@ -1,18 +1,25 @@
-<div class="task-progress">
-  <span></span>
-  <app-progress-bar [value]="overall().onlyFirstDone" [max]="overall().totalSubmissions"></app-progress-bar>
-  <app-progress-bar [value]="overall().done" [max]="overall().totalSubmissions"></app-progress-bar>
+<div class="progress-header">
+  <h2>Assessment Progress</h2>
+  <p>Track submission progress across all tasks</p>
 </div>
 
-<div class="task-progress">
-  @for (task of tasks(); track getTaskName(task)) {
-    <span>{{getTaskName(task)}}</span>
-    <app-progress-bar [value]="task.progressDataPointDto.onlyFirstDone" [max]="task.progressDataPointDto.totalSubmissions" color="#44cc66"></app-progress-bar>
+<div class="overall-progress">
+  <span class="label">Overall</span>
+  <app-progress-bar [value]="overall().onlyFirstDone" [max]="overall().totalSubmissions" color="#60a5fa"></app-progress-bar>
+  <app-progress-bar [value]="overall().done" [max]="overall().totalSubmissions" color="#8b5cf6"></app-progress-bar>
+</div>
 
-    @if (task.taskType == TaskType.BWINF) {
-      <app-progress-bar [value]="task.progressDataPointDto.done" [max]="task.progressDataPointDto.totalSubmissions" color="#cc7733"></app-progress-bar>
-    } @else {
-      <span></span>
-    }
+<div class="task-progress-container">
+  @for (task of tasks(); track getTaskName(task)) {
+    <div class="task-progress">
+      <span class="task-name">{{getTaskName(task)}}</span>
+      <app-progress-bar [value]="task.progressDataPointDto.onlyFirstDone" [max]="task.progressDataPointDto.totalSubmissions" color="#10b981"></app-progress-bar>
+
+      @if (task.taskType == TaskType.BWINF) {
+        <app-progress-bar [value]="task.progressDataPointDto.done" [max]="task.progressDataPointDto.totalSubmissions" color="#f59e0b"></app-progress-bar>
+      } @else {
+        <span class="empty-cell"></span>
+      }
+    </div>
   }
 </div>
