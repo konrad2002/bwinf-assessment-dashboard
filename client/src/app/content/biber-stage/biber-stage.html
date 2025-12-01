@@ -1,8 +1,8 @@
-@for (biber of biberCount(); track biber.id) {
+@for (biber of biberCount(); track biber.id; let i = $index) {
   <app-biber
-    class="biber"
     [attr.data-id]="biber.id"
-    [style.top.px]="laneFor(biber.id) * 28"
+    [style.top.px]="(i % laneCount) * 28"
+    [style.animation-delay.s]="delayFor(biber.id)"
     [name]="biber.corrector.shortName"
   ></app-biber>
 }

@@ -1,5 +1,4 @@
 :host {
-  --stage-height: 120px;
   --biber-duration: 6s;
 }
 
@@ -7,21 +6,18 @@
   position: relative;
   display: block;
   width: 100%;
-  height: var(--stage-height);
+  height: 100%;
   overflow: hidden;
 }
 
-.biber {
+:host ::ng-deep app-biber {
   position: absolute;
   left: -10%;
+  width: 64px;
   animation: walk var(--biber-duration) linear forwards;
 }
 
 @keyframes walk {
   0% { left: -10%; }
   100% { left: 100%; }
-}
-.biber {
-  width: 48px;
-  display: inline-block;
 }

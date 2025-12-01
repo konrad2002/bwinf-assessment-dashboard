@@ -59,18 +59,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.eventSourceSubscription = this.eventService.connectToServerSentEvents(url)
       .subscribe({
           next: data => {
-            console.log(data);
+            console.log('SSE event received:', data);
 
             const progressData: EventSseDataDto = JSON.parse(data.data);
 
             this.overall = progressData.combinedProgressDataPointDto.globalProgressDataPoint.progressDataPointDto;
             this.tasks = progressData.combinedProgressDataPointDto.taskProgressDataPointDtos;
 
-            this.dummy.set(this.dummy() + 1)
-            this.bibers.push({
+            this.dummy.set(this.dummy() + 1);
+            const newBiber = {
               id: this.dummy(),
               corrector: progressData.correctorDto
-            });
+            };
+            console.log('Adding new biber:', newBiber);
+            // Create new array reference for OnPush change detection
+            this.bibers = [...this.bibers, newBiber];
+            console.log('Total bibers now:', this.bibers.length);
             this.cdr.detectChanges();
           },
           error: error => {
@@ -87,10 +91,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onBiberDone(id: number) {
+    console.log('Removing biber with id:', id, 'Current bibers:', this.bibers.length);
     const idx = this.bibers.findIndex(b => b.id === id);
     if (idx >= 0) {
-      this.bibers.splice(idx, 1);
+      // Create new array reference for OnPush change detection
+      this.bibers = this.bibers.filter(b => b.id !== id);
+      console.log('Biber removed. Remaining:', this.bibers.length);
       this.cdr.detectChanges();
+    } else {
+      console.warn('Biber id not found:', id);
     }
   }
 }
