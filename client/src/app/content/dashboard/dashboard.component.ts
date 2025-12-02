@@ -17,7 +17,6 @@ import {SubscriptionLike} from 'rxjs';
 import {EventSourceService} from '../../core/service/events.service';
 import {ProgressBar} from '../progress-bar/progress-bar';
 import {BiberStage} from '../biber-stage/biber-stage';
-import {CombinedProgressDataDto} from '../../core/model/combined-progress-data.dto';
 import {CorrectorDto} from '../../core/model/corrector.dto';
 import {EventSseDataDto} from '../../core/model/event-sse-data.dto';
 
@@ -60,18 +59,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.eventSourceSubscription = this.eventService.connectToServerSentEvents(url)
       .subscribe({
           next: data => {
-            console.log(data);
+            console.log('SSE event received:', data);
 
             const progressData: EventSseDataDto = JSON.parse(data.data);
 
             this.overall = progressData.combinedProgressDataPointDto.globalProgressDataPoint.progressDataPointDto;
             this.tasks = progressData.combinedProgressDataPointDto.taskProgressDataPointDtos;
 
-            this.dummy.set(this.dummy() + 1)
-            this.bibers.push({
+            this.dummy.set(this.dummy() + 1);
+            const newBiber = {
               id: this.dummy(),
               corrector: progressData.correctorDto
-            });
+            };
+            console.log('Adding new biber:', newBiber);
+            // Create new array reference for OnPush change detection
+            this.bibers = [...this.bibers, newBiber];
+            console.log('Total bibers now:', this.bibers.length);
             this.cdr.detectChanges();
           },
           error: error => {
@@ -85,5 +88,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (this.eventSourceSubscription)
       this.eventSourceSubscription.unsubscribe();
     this.eventService.close();
+  }
+
+  onBiberDone(id: number) {
+    console.log('Removing biber with id:', id, 'Current bibers:', this.bibers.length);
+    const idx = this.bibers.findIndex(b => b.id === id);
+    if (idx >= 0) {
+      // Create new array reference for OnPush change detection
+      this.bibers = this.bibers.filter(b => b.id !== id);
+      console.log('Biber removed. Remaining:', this.bibers.length);
+      this.cdr.detectChanges();
+    } else {
+      console.warn('Biber id not found:', id);
+    }
   }
 }

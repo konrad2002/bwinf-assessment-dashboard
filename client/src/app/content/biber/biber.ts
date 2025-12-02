@@ -5,6 +5,9 @@ import {Component, input} from '@angular/core';
   imports: [],
   templateUrl: './biber.html',
   styleUrl: './biber.scss',
+  host: {
+    style: 'display:block;'
+  }
 })
 export class Biber {
   readonly name = input<string>('steve');

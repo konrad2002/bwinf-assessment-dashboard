@@ -1,7 +1,11 @@
-<app-progress-bar [value]="dummy()" [max]="100"></app-progress-bar>
+<div class="dashboard-container">
+  <div class="progress-section biber-section">
+    <app-biber-stage [biberCount]="bibers" (remove)="onBiberDone($event)"></app-biber-stage>
+  </div>
 
-<app-biber-stage [biberCount]="bibers"></app-biber-stage>
-
-@if (overall) {
-  <app-progress-view [overall]="overall" [tasks]="tasks"></app-progress-view>
-}
+  @if (overall) {
+    <div class="progress-section">
+      <app-progress-view [overall]="overall" [tasks]="tasks"></app-progress-view>
+    </div>
+  }
+</div>
